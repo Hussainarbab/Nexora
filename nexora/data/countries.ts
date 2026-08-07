@@ -1,0 +1,58 @@
+export const countries = [
+  {
+    id: 1,
+    name: "Pakistan",
+    code: "PK",
+    flag: "🇵🇰",
+    opportunities: "2,500+",
+  },
+  {
+    id: 2,
+    name: "United States",
+    code: "US",
+    flag: "🇺🇸",
+    opportunities: "8,200+",
+  },
+  {
+    id: 3,
+    name: "United Kingdom",
+    code: "GB",
+    flag: "🇬🇧",
+    opportunities: "6,400+",
+  },
+  {
+    id: 4,
+    name: "Canada",
+    code: "CA",
+    flag: "🇨🇦",
+    opportunities: "4,800+",
+  },
+  {
+    id: 5,
+    name: "Australia",
+    code: "AU",
+    flag: "🇦🇺",
+    opportunities: "3,900+",
+  },
+  {
+    id: 6,
+    name: "Germany",
+    code: "DE",
+    flag: "🇩🇪",
+    opportunities: "3,500+",
+  },
+  {
+    id: 7,
+    name: "Turkey",
+    code: "TR",
+    flag: "🇹🇷",
+    opportunities: "2,100+",
+  },
+  {
+    id: 8,
+    name: "China",
+    code: "CN",
+    flag: "🇨🇳",
+    opportunities: "2,800+",
+  },
+];
