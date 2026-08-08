@@ -2,17 +2,39 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     setLoading(true);
+    setMessage("");
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const form = new FormData(e.currentTarget);
 
-    setLoading(false);
+    const email = form.get("email") as string;
+    const password = form.get("password") as string;
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setMessage(error.message);
+      setLoading(false);
+      return;
+    }
+
+    router.push("/dashboard");
+    router.refresh();
   };
 
   return (
@@ -32,7 +54,7 @@ export default function LoginPage() {
           </h1>
 
           <p className="mt-2 text-slate-500">
-            Login to manage your opportunities.
+            Login to your Nexora account.
           </p>
         </div>
 
@@ -46,6 +68,7 @@ export default function LoginPage() {
               </label>
 
               <input
+                name="email"
                 type="email"
                 required
                 placeholder="you@example.com"
@@ -68,12 +91,19 @@ export default function LoginPage() {
               </div>
 
               <input
+                name="password"
                 type="password"
                 required
                 placeholder="••••••••"
                 className="w-full rounded-xl border border-slate-300 px-4 py-3.5 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
               />
             </div>
+
+            {message && (
+              <div className="rounded-xl bg-red-50 p-4 text-sm text-red-600">
+                {message}
+              </div>
+            )}
 
             <button
               type="submit"
@@ -96,7 +126,6 @@ export default function LoginPage() {
           </p>
 
         </div>
-
       </div>
     </main>
   );
