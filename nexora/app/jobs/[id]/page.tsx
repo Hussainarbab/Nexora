@@ -12,6 +12,7 @@ const jobs = [
     company: "TechNova",
     country: "Pakistan",
     location: "Islamabad",
+    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "Remote",
     experience: "Entry Level",
@@ -41,6 +42,7 @@ const jobs = [
     company: "GlobalSoft",
     country: "United Kingdom",
     location: "London",
+    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "Remote",
     experience: "Mid Level",
@@ -70,6 +72,7 @@ const jobs = [
     company: "Microsoft",
     country: "United States",
     location: "Seattle",
+    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "On-site",
     experience: "Mid Level",
@@ -99,6 +102,7 @@ const jobs = [
     company: "Creative Labs",
     country: "Canada",
     location: "Toronto",
+    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "Hybrid",
     experience: "Entry Level",
@@ -128,6 +132,7 @@ const jobs = [
     company: "DigitalWave",
     country: "Germany",
     location: "Berlin",
+    applyUrl: "https://example.com/apply",
     type: "Contract",
     workplace: "Remote",
     experience: "Mid Level",
@@ -157,6 +162,7 @@ const jobs = [
     company: "CodeWorks",
     country: "Pakistan",
     location: "Lahore",
+    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "Hybrid",
     experience: "Entry Level",
@@ -186,6 +192,7 @@ const jobs = [
     company: "Cloud Systems",
     country: "Australia",
     location: "Sydney",
+    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "Remote",
     experience: "Senior Level",
@@ -215,6 +222,7 @@ const jobs = [
     company: "FutureTech",
     country: "United Arab Emirates",
     location: "Dubai",
+    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "On-site",
     experience: "Mid Level",
@@ -582,16 +590,14 @@ export default function JobDetailsPage() {
 
               {/* Buttons */}
               <div className="mt-7 border-t border-slate-100 pt-6">
-                <button
-                  onClick={() =>
-                    alert(
-                      "The official application link will be added here."
-                    )
-                  }
-                  className="w-full rounded-xl bg-blue-600 py-3.5 font-bold text-white transition hover:bg-blue-700"
-                >
-                  Apply Now →
-                </button>
+                <a
+  href={job.applyUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="block w-full rounded-xl bg-blue-600 py-3.5 text-center font-bold text-white transition hover:bg-blue-700"
+>
+  Apply Now →
+</a>
 
                 {checkingSaved ? (
                   <button

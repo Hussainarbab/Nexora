@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 const internships = [
@@ -12,6 +12,7 @@ const internships = [
     company: "TechNova",
     country: "Pakistan",
     location: "Islamabad",
+    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "Remote",
     level: "Students",
@@ -40,6 +41,7 @@ const internships = [
     company: "Microsoft",
     country: "United States",
     location: "Seattle",
+    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "On-site",
     level: "Undergraduate",
@@ -66,6 +68,7 @@ const internships = [
     company: "Creative Labs",
     country: "Canada",
     location: "Toronto",
+    applyUrl: "https://example.com/apply",
     type: "Part-time",
     workplace: "Hybrid",
     level: "Students",
@@ -91,6 +94,7 @@ const internships = [
     company: "GlobalSoft",
     country: "United Kingdom",
     location: "London",
+    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "Remote",
     level: "Undergraduate",
@@ -116,6 +120,7 @@ const internships = [
     company: "FutureTech",
     country: "United Arab Emirates",
     location: "Dubai",
+    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "On-site",
     level: "Students",
@@ -141,6 +146,7 @@ const internships = [
     company: "CodeWorks",
     country: "Pakistan",
     location: "Lahore",
+    applyUrl: "https://example.com/apply",
     type: "Part-time",
     workplace: "Hybrid",
     level: "Students",
@@ -166,6 +172,7 @@ const internships = [
     company: "Cloud Systems",
     country: "Australia",
     location: "Sydney",
+    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "Remote",
     level: "Graduate",
@@ -191,6 +198,7 @@ const internships = [
     company: "DigitalWave",
     country: "Germany",
     location: "Berlin",
+    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "Hybrid",
     level: "Graduate",
@@ -216,12 +224,114 @@ export default function InternshipDetailsPage() {
   const params = useParams();
   const id = Number(params.id);
 
-  const internship = internships.find(
-    (item) => item.id === id
-  );
+  const internship = internships.find((item) => item.id === id);
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [checkingSaved, setCheckingSaved] = useState(true);
+
+  // Check if internship is already saved
+  useEffect(() => {
+    const checkSaved = async () => {
+      if (!internship) {
+        setCheckingSaved(false);
+        return;
+      }
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setCheckingSaved(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("saved_opportunities")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("opportunity_id", String(internship.id))
+        .eq("opportunity_type", "internship")
+        .maybeSingle();
+
+      if (!error && data) {
+        setSaved(true);
+      }
+
+      setCheckingSaved(false);
+    };
+
+    checkSaved();
+  }, [internship]);
+
+  const saveInternship = async () => {
+    if (!internship) return;
+
+    setSaving(true);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      alert("Please login first to save this internship.");
+      setSaving(false);
+      return;
+    }
+
+    // Check if already saved
+    const { data: existing, error: checkError } = await supabase
+      .from("saved_opportunities")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("opportunity_id", String(internship.id))
+      .eq("opportunity_type", "internship")
+      .maybeSingle();
+
+    if (checkError) {
+      alert(`Failed to check saved internship: ${checkError.message}`);
+      setSaving(false);
+      return;
+    }
+
+    if (existing) {
+      setSaved(true);
+      alert("This internship is already saved.");
+      setSaving(false);
+      return;
+    }
+
+    // Save internship
+    const { error } = await supabase
+      .from("saved_opportunities")
+      .insert({
+        user_id: user.id,
+        opportunity_id: String(internship.id),
+        opportunity_type: "internship",
+        title: internship.title,
+        company: internship.company,
+      });
+
+    if (error) {
+      // Duplicate record
+      if (error.code === "23505") {
+        setSaved(true);
+        alert("This internship is already saved.");
+        setSaving(false);
+        return;
+      }
+
+      alert(`Failed to save internship: ${error.message}`);
+      setSaving(false);
+      return;
+    }
+
+    setSaved(true);
+    setSaving(false);
+
+    alert("Internship saved successfully! ❤️");
+  };
 
   if (!internship) {
     return (
@@ -248,70 +358,11 @@ export default function InternshipDetailsPage() {
     );
   }
 
-  const saveInternship = async () => {
-    setSaving(true);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      alert("Please login first to save this internship.");
-      setSaving(false);
-      return;
-    }
-
-    // Check if already saved
-    const { data: existing, error: checkError } = await supabase
-      .from("saved_opportunities")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("opportunity_id", String(internship.id))
-      .eq("opportunity_type", "internship")
-      .maybeSingle();
-
-    if (checkError) {
-      alert(checkError.message);
-      setSaving(false);
-      return;
-    }
-
-    if (existing) {
-      setSaved(true);
-      alert("This internship is already saved.");
-      setSaving(false);
-      return;
-    }
-
-    const { error } = await supabase
-      .from("saved_opportunities")
-      .insert({
-        user_id: user.id,
-        opportunity_id: String(internship.id),
-        opportunity_type: "internship",
-        title: internship.title,
-        company: internship.company,
-      });
-
-    if (error) {
-      alert(error.message);
-      setSaving(false);
-      return;
-    }
-
-    setSaved(true);
-    setSaving(false);
-
-    alert("Internship saved successfully! ❤️");
-  };
-
   return (
     <main className="min-h-screen bg-slate-50">
-
       {/* Navbar */}
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-
           <Link
             href="/"
             className="text-2xl font-extrabold text-blue-600"
@@ -325,23 +376,19 @@ export default function InternshipDetailsPage() {
           >
             ← Internships
           </Link>
-
         </div>
       </header>
 
+      {/* Main Content */}
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-
         {/* Hero */}
         <section className="rounded-3xl bg-linear-to-br from-violet-700 to-purple-600 p-6 text-white shadow-xl sm:p-10">
-
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-
             <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl bg-white/15 text-4xl backdrop-blur">
               🚀
             </div>
 
             <div className="flex-1">
-
               <span className="inline-block rounded-full bg-white/15 px-4 py-2 text-sm font-semibold">
                 {internship.payment}
               </span>
@@ -355,7 +402,6 @@ export default function InternshipDetailsPage() {
               </p>
 
               <div className="mt-5 flex flex-wrap gap-3">
-
                 <span className="rounded-xl bg-white/10 px-4 py-2 text-sm">
                   🌍 {internship.country}
                 </span>
@@ -371,24 +417,17 @@ export default function InternshipDetailsPage() {
                 <span className="rounded-xl bg-white/10 px-4 py-2 text-sm">
                   ⏳ {internship.duration}
                 </span>
-
               </div>
-
             </div>
-
           </div>
-
         </section>
 
         {/* Content */}
         <div className="mt-8 grid gap-8 lg:grid-cols-3">
-
           {/* Main */}
           <div className="space-y-8 lg:col-span-2">
-
             {/* About */}
             <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-
               <h2 className="text-2xl font-bold text-slate-900">
                 About This Internship
               </h2>
@@ -396,82 +435,55 @@ export default function InternshipDetailsPage() {
               <p className="mt-4 leading-7 text-slate-600">
                 {internship.description}
               </p>
-
             </section>
 
             {/* Responsibilities */}
             <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-
               <h2 className="text-2xl font-bold text-slate-900">
                 Responsibilities
               </h2>
 
               <div className="mt-5 space-y-3">
+                {internship.responsibilities.map((item, index) => (
+                  <div key={index} className="flex gap-3">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-600">
+                      ✓
+                    </span>
 
-                {internship.responsibilities.map(
-                  (item, index) => (
-                    <div
-                      key={index}
-                      className="flex gap-3"
-                    >
-                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-600">
-                        ✓
-                      </span>
-
-                      <p className="text-slate-600">
-                        {item}
-                      </p>
-                    </div>
-                  )
-                )}
-
+                    <p className="text-slate-600">{item}</p>
+                  </div>
+                ))}
               </div>
-
             </section>
 
             {/* Requirements */}
             <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-
               <h2 className="text-2xl font-bold text-slate-900">
                 Requirements
               </h2>
 
               <div className="mt-5 space-y-3">
+                {internship.requirements.map((item, index) => (
+                  <div key={index} className="flex gap-3">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-600">
+                      ✓
+                    </span>
 
-                {internship.requirements.map(
-                  (item, index) => (
-                    <div
-                      key={index}
-                      className="flex gap-3"
-                    >
-                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-600">
-                        ✓
-                      </span>
-
-                      <p className="text-slate-600">
-                        {item}
-                      </p>
-                    </div>
-                  )
-                )}
-
+                    <p className="text-slate-600">{item}</p>
+                  </div>
+                ))}
               </div>
-
             </section>
-
           </div>
 
           {/* Sidebar */}
           <aside>
-
             <div className="sticky top-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
-
               <h2 className="text-xl font-bold text-slate-900">
                 Internship Information
               </h2>
 
               <div className="mt-6 space-y-5">
-
                 <Info
                   label="Company"
                   value={internship.company}
@@ -513,47 +525,42 @@ export default function InternshipDetailsPage() {
                   value={internship.duration}
                   icon="⏳"
                 />
-
               </div>
 
               <div className="mt-7 border-t border-slate-100 pt-6">
+                {/* Apply */}
+                <a
+  href={internship.applyUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="block w-full rounded-xl bg-purple-600 py-3.5 text-center font-bold text-white transition hover:bg-purple-700"
+>
+  Apply Now →
+</a>
 
-                <button
-                  onClick={() =>
-                    alert(
-                      "The official application link will be added here."
-                    )
-                  }
-                  className="w-full rounded-xl bg-purple-600 py-3.5 font-bold text-white transition hover:bg-purple-700"
-                >
-                  Apply Now →
-                </button>
-
+                {/* Save */}
                 <button
                   onClick={saveInternship}
-                  disabled={saving || saved}
+                  disabled={saving || saved || checkingSaved}
                   className="mt-3 w-full rounded-xl border border-slate-300 py-3.5 font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100"
                 >
-                  {saving
-                    ? "Saving..."
-                    : saved
-                      ? "❤️ Saved"
-                      : "♡ Save Internship"}
+                  {checkingSaved
+                    ? "Checking..."
+                    : saving
+                      ? "Saving..."
+                      : saved
+                        ? "❤️ Saved"
+                        : "♡ Save Internship"}
                 </button>
-
               </div>
 
               <p className="mt-5 text-center text-xs leading-5 text-slate-400">
-                Always verify the internship and company details
-                before applying.
+                Always verify the internship and company details before
+                applying.
               </p>
-
             </div>
-
           </aside>
-
         </div>
-
       </div>
     </main>
   );
@@ -570,21 +577,17 @@ function Info({
 }) {
   return (
     <div className="flex items-center gap-4">
-
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-lg">
         {icon}
       </div>
 
       <div>
-        <p className="text-xs text-slate-400">
-          {label}
-        </p>
+        <p className="text-xs text-slate-400">{label}</p>
 
         <p className="mt-1 font-semibold text-slate-800">
           {value}
         </p>
       </div>
-
     </div>
   );
 }
