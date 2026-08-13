@@ -12,15 +12,20 @@ const internships = [
     company: "TechNova",
     country: "Pakistan",
     location: "Islamabad",
+
+    // IMPORTANT: Only put the direct URL here
     applyUrl: "https://example.com/apply",
+
     type: "Full-time",
     workplace: "Remote",
     level: "Students",
     payment: "Paid",
     duration: "3 Months",
     posted: "2 days ago",
+
     description:
       "Learn and work on modern web applications using HTML, CSS, JavaScript and React.",
+
     responsibilities: [
       "Build responsive web pages",
       "Work with React components",
@@ -28,6 +33,7 @@ const internships = [
       "Collaborate with senior developers",
       "Learn modern development practices",
     ],
+
     requirements: [
       "Basic HTML and CSS",
       "JavaScript fundamentals",
@@ -35,183 +41,225 @@ const internships = [
       "Good communication",
     ],
   },
+
   {
     id: 2,
     title: "Software Engineering Intern",
     company: "Microsoft",
     country: "United States",
     location: "Seattle",
-    applyUrl: "https://example.com/apply",
+
+    applyUrl: "https://careers.microsoft.com/",
+
     type: "Full-time",
     workplace: "On-site",
     level: "Undergraduate",
     payment: "Paid",
     duration: "12 Weeks",
     posted: "4 days ago",
+
     description:
       "Gain practical software engineering experience while working with experienced developers.",
+
     responsibilities: [
       "Write production code",
       "Work with engineering teams",
       "Debug applications",
       "Participate in code reviews",
     ],
+
     requirements: [
       "Programming knowledge",
       "Computer science student",
       "Problem solving skills",
     ],
   },
+
   {
     id: 3,
     title: "UI/UX Design Intern",
     company: "Creative Labs",
     country: "Canada",
     location: "Toronto",
+
     applyUrl: "https://example.com/apply",
+
     type: "Part-time",
     workplace: "Hybrid",
     level: "Students",
     payment: "Paid",
     duration: "4 Months",
     posted: "5 days ago",
+
     description:
       "Work with designers to create modern user interfaces and improve digital experiences.",
+
     responsibilities: [
       "Create wireframes",
       "Build prototypes",
       "Conduct user research",
     ],
+
     requirements: [
       "Figma knowledge",
       "Creative thinking",
       "Basic design principles",
     ],
   },
+
   {
     id: 4,
     title: "React Developer Intern",
     company: "GlobalSoft",
     country: "United Kingdom",
     location: "London",
+
     applyUrl: "https://example.com/apply",
+
     type: "Full-time",
     workplace: "Remote",
     level: "Undergraduate",
     payment: "Paid",
     duration: "6 Months",
     posted: "1 week ago",
+
     description:
       "Build reusable React components and gain hands-on experience with modern frontend development.",
+
     responsibilities: [
       "Develop React components",
       "Integrate APIs",
       "Improve UI performance",
     ],
+
     requirements: [
       "React basics",
       "JavaScript",
       "Git knowledge",
     ],
   },
+
   {
     id: 5,
     title: "Digital Marketing Intern",
     company: "FutureTech",
     country: "United Arab Emirates",
     location: "Dubai",
+
     applyUrl: "https://example.com/apply",
+
     type: "Full-time",
     workplace: "On-site",
     level: "Students",
     payment: "Paid",
     duration: "3 Months",
     posted: "1 week ago",
+
     description:
       "Learn digital marketing strategies, social media management and online campaign planning.",
+
     responsibilities: [
       "Manage campaigns",
       "Create content",
       "Analyze marketing results",
     ],
+
     requirements: [
       "Interest in marketing",
       "Communication skills",
       "Social media knowledge",
     ],
   },
+
   {
     id: 6,
     title: "Web Development Intern",
     company: "CodeWorks",
     country: "Pakistan",
     location: "Lahore",
+
     applyUrl: "https://example.com/apply",
+
     type: "Part-time",
     workplace: "Hybrid",
     level: "Students",
     payment: "Unpaid",
     duration: "3 Months",
     posted: "2 weeks ago",
+
     description:
       "A beginner-friendly opportunity to improve your web development skills through real projects.",
+
     responsibilities: [
       "Create web pages",
       "Fix bugs",
       "Learn from mentors",
     ],
+
     requirements: [
       "HTML",
       "CSS",
       "Willingness to learn",
     ],
   },
+
   {
     id: 7,
     title: "Data Science Intern",
     company: "Cloud Systems",
     country: "Australia",
     location: "Sydney",
+
     applyUrl: "https://example.com/apply",
+
     type: "Full-time",
     workplace: "Remote",
     level: "Graduate",
     payment: "Paid",
     duration: "6 Months",
     posted: "2 weeks ago",
+
     description:
       "Work with data scientists on analytics, machine learning and data-driven projects.",
+
     responsibilities: [
       "Analyze datasets",
       "Create reports",
       "Support machine learning projects",
     ],
+
     requirements: [
       "Python basics",
       "Statistics",
       "Analytical thinking",
     ],
   },
+
   {
     id: 8,
     title: "Product Management Intern",
     company: "DigitalWave",
     country: "Germany",
     location: "Berlin",
+
     applyUrl: "https://example.com/apply",
+
     type: "Full-time",
     workplace: "Hybrid",
     level: "Graduate",
     payment: "Paid",
     duration: "4 Months",
     posted: "3 weeks ago",
+
     description:
       "Support product teams with research, planning and development of digital products.",
+
     responsibilities: [
       "Product research",
       "Create documentation",
       "Work with product teams",
     ],
+
     requirements: [
       "Communication skills",
       "Organizational skills",
@@ -222,15 +270,19 @@ const internships = [
 
 export default function InternshipDetailsPage() {
   const params = useParams();
+
   const id = Number(params.id);
 
   const internship = internships.find((item) => item.id === id);
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
   const [checkingSaved, setCheckingSaved] = useState(true);
 
-  // Check if internship is already saved
+  /*
+   * Check whether internship is already saved
+   */
   useEffect(() => {
     const checkSaved = async () => {
       if (!internship) {
@@ -238,16 +290,68 @@ export default function InternshipDetailsPage() {
         return;
       }
 
+      try {
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+
+        if (userError || !user) {
+          setCheckingSaved(false);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from("saved_opportunities")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("opportunity_id", String(internship.id))
+          .eq("opportunity_type", "internship")
+          .maybeSingle();
+
+        if (!error && data) {
+          setSaved(true);
+          setSavedId(data.id);
+        }
+      } catch (error) {
+        console.error("Check saved internship error:", error);
+      } finally {
+        setCheckingSaved(false);
+      }
+    };
+
+    checkSaved();
+  }, [internship]);
+
+  /*
+   * Save internship
+   */
+  const saveInternship = async () => {
+    if (!internship || saving) return;
+
+    setSaving(true);
+
+    try {
       const {
         data: { user },
+        error: userError,
       } = await supabase.auth.getUser();
 
-      if (!user) {
-        setCheckingSaved(false);
+      if (userError) {
+        console.error("User error:", userError);
+        alert("Unable to check your account. Please try again.");
         return;
       }
 
-      const { data, error } = await supabase
+      if (!user) {
+        alert("Please login first to save this internship.");
+        return;
+      }
+
+      /*
+       * Check if already saved
+       */
+      const { data: existing, error: checkError } = await supabase
         .from("saved_opportunities")
         .select("id")
         .eq("user_id", user.id)
@@ -255,84 +359,111 @@ export default function InternshipDetailsPage() {
         .eq("opportunity_type", "internship")
         .maybeSingle();
 
-      if (!error && data) {
-        setSaved(true);
-      }
+      if (checkError) {
+        console.error("Check saved error:", checkError);
 
-      setCheckingSaved(false);
-    };
+        alert(
+          `Failed to check saved internship: ${checkError.message}`
+        );
 
-    checkSaved();
-  }, [internship]);
-
-  const saveInternship = async () => {
-    if (!internship) return;
-
-    setSaving(true);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      alert("Please login first to save this internship.");
-      setSaving(false);
-      return;
-    }
-
-    // Check if already saved
-    const { data: existing, error: checkError } = await supabase
-      .from("saved_opportunities")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("opportunity_id", String(internship.id))
-      .eq("opportunity_type", "internship")
-      .maybeSingle();
-
-    if (checkError) {
-      alert(`Failed to check saved internship: ${checkError.message}`);
-      setSaving(false);
-      return;
-    }
-
-    if (existing) {
-      setSaved(true);
-      alert("This internship is already saved.");
-      setSaving(false);
-      return;
-    }
-
-    // Save internship
-    const { error } = await supabase
-      .from("saved_opportunities")
-      .insert({
-        user_id: user.id,
-        opportunity_id: String(internship.id),
-        opportunity_type: "internship",
-        title: internship.title,
-        company: internship.company,
-      });
-
-    if (error) {
-      // Duplicate record
-      if (error.code === "23505") {
-        setSaved(true);
-        alert("This internship is already saved.");
-        setSaving(false);
         return;
       }
 
-      alert(`Failed to save internship: ${error.message}`);
+      if (existing) {
+        setSaved(true);
+        setSavedId(existing.id);
+
+        alert("This internship is already saved.");
+
+        return;
+      }
+
+      /*
+       * Insert into Supabase
+       */
+      const { data, error: insertError } = await supabase
+        .from("saved_opportunities")
+        .insert({
+          user_id: user.id,
+          opportunity_id: String(internship.id),
+          opportunity_type: "internship",
+          title: internship.title,
+          company: internship.company,
+        })
+        .select("id")
+        .single();
+
+      if (insertError) {
+        console.error("Save internship error:", insertError);
+
+        if (insertError.code === "23505") {
+          setSaved(true);
+
+          alert("This internship is already saved.");
+
+          return;
+        }
+
+        alert(
+          `Failed to save internship: ${insertError.message}`
+        );
+
+        return;
+      }
+
+      setSaved(true);
+      setSavedId(data?.id ?? null);
+
+      alert("Internship saved successfully! ❤️");
+    } catch (error) {
+      console.error("Unexpected save error:", error);
+
+      alert("Something went wrong. Please try again.");
+    } finally {
       setSaving(false);
-      return;
     }
-
-    setSaved(true);
-    setSaving(false);
-
-    alert("Internship saved successfully! ❤️");
   };
 
+  /*
+   * Remove saved internship
+   */
+  const removeInternship = async () => {
+    if (!savedId || saving) return;
+
+    setSaving(true);
+
+    try {
+      const { error } = await supabase
+        .from("saved_opportunities")
+        .delete()
+        .eq("id", savedId);
+
+      if (error) {
+        console.error("Remove internship error:", error);
+
+        alert(
+          `Failed to remove internship: ${error.message}`
+        );
+
+        return;
+      }
+
+      setSaved(false);
+      setSavedId(null);
+
+      alert("Internship removed from saved opportunities.");
+    } catch (error) {
+      console.error("Unexpected remove error:", error);
+
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /*
+   * Internship not found
+   */
   if (!internship) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
@@ -349,7 +480,7 @@ export default function InternshipDetailsPage() {
 
           <Link
             href="/internships"
-            className="mt-6 inline-block rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white hover:bg-purple-700"
+            className="mt-6 inline-block rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white transition hover:bg-purple-700"
           >
             ← Back to Internships
           </Link>
@@ -379,7 +510,7 @@ export default function InternshipDetailsPage() {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main */}
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Hero */}
         <section className="rounded-3xl bg-linear-to-br from-violet-700 to-purple-600 p-6 text-white shadow-xl sm:p-10">
@@ -424,7 +555,7 @@ export default function InternshipDetailsPage() {
 
         {/* Content */}
         <div className="mt-8 grid gap-8 lg:grid-cols-3">
-          {/* Main */}
+          {/* Main Content */}
           <div className="space-y-8 lg:col-span-2">
             {/* About */}
             <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -450,7 +581,9 @@ export default function InternshipDetailsPage() {
                       ✓
                     </span>
 
-                    <p className="text-slate-600">{item}</p>
+                    <p className="text-slate-600">
+                      {item}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -469,7 +602,9 @@ export default function InternshipDetailsPage() {
                       ✓
                     </span>
 
-                    <p className="text-slate-600">{item}</p>
+                    <p className="text-slate-600">
+                      {item}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -525,38 +660,63 @@ export default function InternshipDetailsPage() {
                   value={internship.duration}
                   icon="⏳"
                 />
+
+                <Info
+                  label="Posted"
+                  value={internship.posted}
+                  icon="📅"
+                />
               </div>
 
+              {/* Buttons */}
               <div className="mt-7 border-t border-slate-100 pt-6">
-                {/* Apply */}
+                {/* Apply Button */}
                 <a
-  href={internship.applyUrl}
-  target="_blank"
-  rel="noopener noreferrer"
-  className="block w-full rounded-xl bg-purple-600 py-3.5 text-center font-bold text-white transition hover:bg-purple-700"
->
-  Apply Now →
-</a>
-
-                {/* Save */}
-                <button
-                  onClick={saveInternship}
-                  disabled={saving || saved || checkingSaved}
-                  className="mt-3 w-full rounded-xl border border-slate-300 py-3.5 font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100"
+                  href={internship.applyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full rounded-xl bg-purple-600 py-3.5 text-center font-bold text-white transition hover:bg-purple-700"
                 >
-                  {checkingSaved
-                    ? "Checking..."
-                    : saving
+                  Apply Now →
+                </a>
+
+                {/* Save / Remove */}
+                {checkingSaved ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="mt-3 w-full cursor-not-allowed rounded-xl border border-slate-300 bg-slate-100 py-3.5 font-bold text-slate-400"
+                  >
+                    Checking...
+                  </button>
+                ) : saved ? (
+                  <button
+                    type="button"
+                    onClick={removeInternship}
+                    disabled={saving}
+                    className="mt-3 w-full rounded-xl border border-red-200 py-3.5 font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {saving
+                      ? "Removing..."
+                      : "❤️ Saved — Remove"}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={saveInternship}
+                    disabled={saving}
+                    className="mt-3 w-full rounded-xl border border-slate-300 py-3.5 font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {saving
                       ? "Saving..."
-                      : saved
-                        ? "❤️ Saved"
-                        : "♡ Save Internship"}
-                </button>
+                      : "♡ Save Internship"}
+                  </button>
+                )}
               </div>
 
               <p className="mt-5 text-center text-xs leading-5 text-slate-400">
-                Always verify the internship and company details before
-                applying.
+                Always verify the internship and company details
+                before applying.
               </p>
             </div>
           </aside>
@@ -566,6 +726,9 @@ export default function InternshipDetailsPage() {
   );
 }
 
+/*
+ * Information component
+ */
 function Info({
   label,
   value,
@@ -582,7 +745,9 @@ function Info({
       </div>
 
       <div>
-        <p className="text-xs text-slate-400">{label}</p>
+        <p className="text-xs text-slate-400">
+          {label}
+        </p>
 
         <p className="mt-1 font-semibold text-slate-800">
           {value}

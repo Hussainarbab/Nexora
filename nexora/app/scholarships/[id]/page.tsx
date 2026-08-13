@@ -5,7 +5,22 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-const scholarships = [
+type Scholarship = {
+  id: number;
+  title: string;
+  university: string;
+  country: string;
+  location: string;
+  level: string;
+  funding: string;
+  deadline: string;
+  applyUrl: string;
+  description: string;
+  eligibility: string[];
+  benefits: string[];
+};
+
+const scholarships: Scholarship[] = [
   {
     id: 1,
     title: "Global Excellence Scholarship",
@@ -15,22 +30,23 @@ const scholarships = [
     level: "Masters",
     funding: "Fully Funded",
     deadline: "30 Sep 2026",
-     applyUrl: "https://www.unimelb.edu.au/scholarships",
+    applyUrl: "https://scholarships.unimelb.edu.au/",
     description:
-      "A competitive scholarship for talented international students pursuing postgraduate studies.",
+      "A competitive scholarship opportunity for talented international students pursuing postgraduate studies at the University of Melbourne.",
     eligibility: [
       "International students can apply",
       "Strong academic record",
-      "Meet the university admission requirements",
+      "Meet university admission requirements",
       "Meet English language requirements",
     ],
     benefits: [
-      "Full tuition fee coverage",
-      "Living allowance",
-      "Health insurance",
-      "Travel support",
+      "Full or substantial tuition fee support",
+      "Living allowance where applicable",
+      "Possible additional study support",
+      "International student support",
     ],
   },
+
   {
     id: 2,
     title: "International Student Scholarship",
@@ -40,8 +56,9 @@ const scholarships = [
     level: "Undergraduate",
     funding: "Fully Funded",
     deadline: "15 Oct 2026",
+    applyUrl: "https://future.utoronto.ca/finances/awards/",
     description:
-      "Financial support for outstanding international students with strong academic performance.",
+      "Financial support opportunities for outstanding international students with strong academic performance.",
     eligibility: [
       "International students",
       "Excellent academic performance",
@@ -49,12 +66,13 @@ const scholarships = [
       "English language proficiency",
     ],
     benefits: [
-      "Tuition support",
+      "Tuition support depending on award",
       "Financial assistance",
       "Academic support",
       "Student resources",
     ],
   },
+
   {
     id: 3,
     title: "Chevening Scholarship",
@@ -64,9 +82,9 @@ const scholarships = [
     level: "Masters",
     funding: "Fully Funded",
     deadline: "5 Nov 2026",
-     applyUrl: "https://www.unimelb.edu.au/scholarships",
+    applyUrl: "https://www.chevening.org/scholarships/",
     description:
-      "A prestigious opportunity for future leaders to study a one-year master's degree in the UK.",
+      "A prestigious scholarship opportunity for future leaders to study a one-year master's degree in the United Kingdom.",
     eligibility: [
       "International applicants",
       "Undergraduate degree",
@@ -80,6 +98,7 @@ const scholarships = [
       "Visa application support",
     ],
   },
+
   {
     id: 4,
     title: "DAAD International Scholarship",
@@ -89,9 +108,9 @@ const scholarships = [
     level: "Masters",
     funding: "Fully Funded",
     deadline: "31 Oct 2026",
-     applyUrl: "https://www.unimelb.edu.au/scholarships",
+    applyUrl: "https://www.daad.de/en/study-and-research-in-germany/scholarships/",
     description:
-      "Funding opportunities for international students interested in postgraduate study in Germany.",
+      "Funding opportunities for international students interested in postgraduate study and research in Germany.",
     eligibility: [
       "International students",
       "Bachelor's degree",
@@ -101,10 +120,11 @@ const scholarships = [
     benefits: [
       "Monthly scholarship payment",
       "Travel allowance",
-      "Health insurance",
+      "Health insurance support",
       "Study support",
     ],
   },
+
   {
     id: 5,
     title: "Türkiye Scholarships",
@@ -114,13 +134,13 @@ const scholarships = [
     level: "Undergraduate",
     funding: "Fully Funded",
     deadline: "20 Feb 2027",
-     applyUrl: "https://www.unimelb.edu.au/scholarships",
+    applyUrl: "https://www.turkiyeburslari.gov.tr/",
     description:
-      "Government-funded scholarships for international students at Turkish universities.",
+      "Government-funded scholarship opportunities for international students wishing to study at Turkish universities.",
     eligibility: [
       "International students",
-      "Academic requirements",
-      "Age requirements may apply",
+      "Meet academic requirements",
+      "Meet applicable age requirements",
       "Meet program requirements",
     ],
     benefits: [
@@ -130,6 +150,7 @@ const scholarships = [
       "Accommodation",
     ],
   },
+
   {
     id: 6,
     title: "International Merit Scholarship",
@@ -139,9 +160,9 @@ const scholarships = [
     level: "Masters",
     funding: "Partial Funding",
     deadline: "1 Dec 2026",
-     applyUrl: "https://www.unimelb.edu.au/scholarships",
+    applyUrl: "https://www.auckland.ac.nz/en/study/scholarships-and-awards.html",
     description:
-      "Merit-based financial support for high-achieving international students.",
+      "Merit-based financial support opportunities for high-achieving international students.",
     eligibility: [
       "International students",
       "Strong academic performance",
@@ -154,6 +175,7 @@ const scholarships = [
       "University resources",
     ],
   },
+
   {
     id: 7,
     title: "Chinese Government Scholarship",
@@ -163,9 +185,9 @@ const scholarships = [
     level: "PhD",
     funding: "Fully Funded",
     deadline: "15 Mar 2027",
-     applyUrl: "https://www.unimelb.edu.au/scholarships",
+    applyUrl: "https://www.campuschina.org/",
     description:
-      "Government scholarship covering study opportunities for international students in China.",
+      "Government scholarship opportunities for international students interested in studying in China.",
     eligibility: [
       "International students",
       "Relevant previous degree",
@@ -179,6 +201,7 @@ const scholarships = [
       "Medical insurance",
     ],
   },
+
   {
     id: 8,
     title: "MEXT Scholarship",
@@ -188,13 +211,13 @@ const scholarships = [
     level: "PhD",
     funding: "Fully Funded",
     deadline: "30 Apr 2027",
-     applyUrl: "https://www.unimelb.edu.au/scholarships",
+    applyUrl: "https://www.studyinjapan.go.jp/en/smap-stopj-applications/scholarships/",
     description:
-      "Japanese government scholarship for international students pursuing higher education.",
+      "Japanese government scholarship opportunities for international students pursuing higher education and research in Japan.",
     eligibility: [
       "International students",
-      "Academic qualification",
-      "Research proposal for research programs",
+      "Required academic qualification",
+      "Research proposal for applicable research programs",
       "Meet Japanese university requirements",
     ],
     benefits: [
@@ -219,7 +242,6 @@ export default function ScholarshipDetailsPage() {
   const [saved, setSaved] = useState(false);
   const [checkingSaved, setCheckingSaved] = useState(true);
 
-  // Check whether scholarship is already saved
   useEffect(() => {
     const checkSaved = async () => {
       if (!scholarship) {
@@ -227,34 +249,43 @@ export default function ScholarshipDetailsPage() {
         return;
       }
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-      if (!user) {
+        if (!user) {
+          setCheckingSaved(false);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from("saved_opportunities")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("opportunity_id", String(scholarship.id))
+          .eq("opportunity_type", "scholarship")
+          .maybeSingle();
+
+        if (error) {
+          console.error("Check saved error:", error);
+          setCheckingSaved(false);
+          return;
+        }
+
+        if (data) {
+          setSaved(true);
+        }
+      } catch (error) {
+        console.error("Unexpected error:", error);
+      } finally {
         setCheckingSaved(false);
-        return;
       }
-
-      const { data, error } = await supabase
-        .from("saved_opportunities")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("opportunity_id", String(scholarship.id))
-        .eq("opportunity_type", "scholarship")
-        .maybeSingle();
-
-      if (!error && data) {
-        setSaved(true);
-      }
-
-      setCheckingSaved(false);
     };
 
     checkSaved();
   }, [scholarship]);
 
-  // Save scholarship
   const saveScholarship = async () => {
     if (!scholarship) return;
 
@@ -267,7 +298,7 @@ export default function ScholarshipDetailsPage() {
       } = await supabase.auth.getUser();
 
       if (userError) {
-        console.error(userError);
+        console.error("User error:", userError);
         alert("Unable to check your account. Please try again.");
         return;
       }
@@ -277,7 +308,6 @@ export default function ScholarshipDetailsPage() {
         return;
       }
 
-      // Check again before inserting
       const { data: existing, error: checkError } = await supabase
         .from("saved_opportunities")
         .select("id")
@@ -288,7 +318,11 @@ export default function ScholarshipDetailsPage() {
 
       if (checkError) {
         console.error("Check saved error:", checkError);
-        alert(`Failed to check saved scholarship: ${checkError.message}`);
+
+        alert(
+          `Failed to check saved scholarship: ${checkError.message}`
+        );
+
         return;
       }
 
@@ -298,7 +332,6 @@ export default function ScholarshipDetailsPage() {
         return;
       }
 
-      // Insert into Supabase
       const { error: insertError } = await supabase
         .from("saved_opportunities")
         .insert({
@@ -310,7 +343,10 @@ export default function ScholarshipDetailsPage() {
         });
 
       if (insertError) {
-        console.error("Save scholarship error:", insertError);
+        console.error(
+          "Save scholarship error:",
+          insertError
+        );
 
         if (insertError.code === "23505") {
           setSaved(true);
@@ -437,7 +473,7 @@ export default function ScholarshipDetailsPage() {
         {/* Content */}
         <div className="mt-8 grid gap-8 lg:grid-cols-3">
 
-          {/* Left */}
+          {/* Main Content */}
           <div className="space-y-8 lg:col-span-2">
 
             {/* About */}
@@ -519,7 +555,7 @@ export default function ScholarshipDetailsPage() {
 
           </div>
 
-          {/* Right Sidebar */}
+          {/* Sidebar */}
           <aside className="lg:col-span-1">
 
             <div className="sticky top-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
@@ -556,23 +592,28 @@ export default function ScholarshipDetailsPage() {
 
               </div>
 
+              {/* Actions */}
               <div className="mt-7 border-t border-slate-100 pt-6">
 
                 {/* Apply */}
                 <a
-  href={scholarship.applyUrl}
-  target="_blank"
-  rel="noopener noreferrer"
-  className="block w-full rounded-xl bg-blue-600 py-3.5 text-center font-bold text-white transition hover:bg-blue-700"
->
-  Apply Now →
-</a>
+                  href={scholarship.applyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full rounded-xl bg-blue-600 py-3.5 text-center font-bold text-white transition hover:bg-blue-700"
+                >
+                  Apply Now →
+                </a>
 
                 {/* Save */}
                 <button
                   type="button"
                   onClick={saveScholarship}
-                  disabled={saving || saved || checkingSaved}
+                  disabled={
+                    saving ||
+                    saved ||
+                    checkingSaved
+                  }
                   className="mt-3 w-full rounded-xl border border-slate-300 py-3.5 font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100"
                 >
                   {checkingSaved
@@ -587,8 +628,9 @@ export default function ScholarshipDetailsPage() {
               </div>
 
               <p className="mt-5 text-center text-xs leading-5 text-slate-400">
-                Always verify eligibility and deadlines on the
-                official scholarship website before applying.
+                Always verify eligibility, requirements and
+                deadlines on the official scholarship website
+                before applying.
               </p>
 
             </div>

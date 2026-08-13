@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import SaveButton from "@/components/SaveButton";
 
 type Job = {
   id: number;
@@ -162,13 +163,15 @@ export default function JobsPage() {
 
   const filteredJobs = useMemo(() => {
     let result = jobs.filter((job) => {
-      const query = search.toLowerCase();
+      const query = search.trim().toLowerCase();
 
       const matchesSearch =
+        query === "" ||
         job.title.toLowerCase().includes(query) ||
         job.company.toLowerCase().includes(query) ||
         job.country.toLowerCase().includes(query) ||
-        job.location.toLowerCase().includes(query);
+        job.location.toLowerCase().includes(query) ||
+        job.description.toLowerCase().includes(query);
 
       const matchesCountry =
         country === "All Countries" || job.country === country;
@@ -200,7 +203,14 @@ export default function JobsPage() {
     }
 
     return result;
-  }, [search, country, type, workplace, experience, sort]);
+  }, [
+    search,
+    country,
+    type,
+    workplace,
+    experience,
+    sort,
+  ]);
 
   const clearFilters = () => {
     setSearch("");
@@ -213,11 +223,9 @@ export default function JobsPage() {
 
   return (
     <main className="min-h-screen bg-slate-50">
-
-      {/* Header */}
+      {/* Hero */}
       <section className="bg-linear-to-br from-indigo-700 via-blue-600 to-cyan-600 px-4 py-16 text-white sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-
           <Link
             href="/"
             className="text-2xl font-extrabold"
@@ -226,8 +234,7 @@ export default function JobsPage() {
           </Link>
 
           <div className="mt-12 max-w-3xl">
-
-            <span className="rounded-full bg-white/15 px-4 py-2 text-sm backdrop-blur">
+            <span className="inline-block rounded-full bg-white/15 px-4 py-2 text-sm backdrop-blur">
               💼 Global Job Opportunities
             </span>
 
@@ -239,19 +246,13 @@ export default function JobsPage() {
               Discover jobs from companies around the world,
               including remote, hybrid and on-site opportunities.
             </p>
-
           </div>
 
           {/* Search */}
           <div className="mt-8 max-w-4xl">
-
             <div className="flex flex-col gap-3 rounded-2xl bg-white p-3 shadow-2xl sm:flex-row">
-
               <div className="flex flex-1 items-center gap-3 rounded-xl border border-slate-200 px-4">
-
-                <span className="text-xl">
-                  🔎
-                </span>
+                <span className="text-xl">🔎</span>
 
                 <input
                   type="text"
@@ -260,31 +261,25 @@ export default function JobsPage() {
                   placeholder="Search job, company or location..."
                   className="w-full py-3 text-sm text-slate-900 outline-none"
                 />
-
               </div>
 
               <button
+                type="button"
                 onClick={() => setSearch(search.trim())}
                 className="rounded-xl bg-blue-600 px-7 py-3 font-semibold text-white transition hover:bg-blue-700"
               >
                 Search
               </button>
-
             </div>
-
           </div>
-
         </div>
       </section>
 
       {/* Content */}
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-
         {/* Filters */}
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-
             <Filter
               label="Country"
               value={country}
@@ -319,11 +314,9 @@ export default function JobsPage() {
               onChange={setSort}
               options={["Latest", "A-Z"]}
             />
-
           </div>
 
-          <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-
+          <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-slate-500">
               Showing{" "}
               <span className="font-bold text-slate-900">
@@ -333,35 +326,29 @@ export default function JobsPage() {
             </p>
 
             <button
+              type="button"
               onClick={clearFilters}
-              className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+              className="text-left text-sm font-semibold text-blue-600 hover:text-blue-700 sm:text-right"
             >
               Clear Filters
             </button>
-
           </div>
-
         </div>
 
-        {/* Job Cards */}
+        {/* Jobs */}
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
-
           {filteredJobs.map((job) => (
             <JobCard
               key={job.id}
               job={job}
             />
           ))}
-
         </div>
 
         {/* Empty */}
         {filteredJobs.length === 0 && (
           <div className="mt-8 rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
-
-            <div className="text-5xl">
-              🔍
-            </div>
+            <div className="text-5xl">🔍</div>
 
             <h2 className="mt-5 text-2xl font-bold text-slate-900">
               No jobs found
@@ -373,20 +360,20 @@ export default function JobsPage() {
             </p>
 
             <button
+              type="button"
               onClick={clearFilters}
               className="mt-6 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
             >
               Reset Filters
             </button>
-
           </div>
         )}
-
       </section>
-
     </main>
   );
 }
+
+/* Filter */
 
 function Filter({
   label,
@@ -401,7 +388,6 @@ function Filter({
 }) {
   return (
     <div>
-
       <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
         {label}
       </label>
@@ -412,15 +398,16 @@ function Filter({
         className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
       >
         {options.map((option) => (
-          <option key={option}>
+          <option key={option} value={option}>
             {option}
           </option>
         ))}
       </select>
-
     </div>
   );
 }
+
+/* Job Card */
 
 function JobCard({
   job,
@@ -429,20 +416,36 @@ function JobCard({
 }) {
   return (
     <article className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
-
+      {/* Top */}
       <div className="flex items-start justify-between gap-4">
-
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-2xl">
           💼
         </div>
 
-        <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
-          {job.workplace}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
+            {job.workplace}
+          </span>
 
+          {/* Save Button */}
+          <SaveButton
+            item={{
+              id: String(job.id),
+              title: job.title,
+              company: job.company,
+              location: job.location,
+              type: job.type,
+              workplace: job.workplace,
+              salary: job.salary,
+              description: job.description,
+              category: "job",
+            }}
+          />
+        </div>
       </div>
 
-      <h2 className="mt-5 text-xl font-bold text-slate-900 group-hover:text-blue-600">
+      {/* Job Info */}
+      <h2 className="mt-5 text-xl font-bold text-slate-900 transition group-hover:text-blue-600">
         {job.title}
       </h2>
 
@@ -454,8 +457,8 @@ function JobCard({
         {job.description}
       </p>
 
+      {/* Tags */}
       <div className="mt-5 flex flex-wrap gap-2">
-
         <span className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">
           📍 {job.location}
         </span>
@@ -468,12 +471,14 @@ function JobCard({
           📊 {job.experience}
         </span>
 
+        <span className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">
+          🌍 {job.country}
+        </span>
       </div>
 
-      <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-5">
-
+      {/* Bottom */}
+      <div className="mt-5 flex flex-col gap-4 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-
           <p className="text-xs text-slate-400">
             Salary
           </p>
@@ -485,18 +490,15 @@ function JobCard({
           <p className="mt-1 text-xs text-slate-400">
             Posted {job.posted}
           </p>
-
         </div>
 
         <Link
           href={`/jobs/${job.id}`}
-          className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+          className="rounded-xl bg-blue-600 px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-blue-700"
         >
           View Job →
         </Link>
-
       </div>
-
     </article>
   );
 }

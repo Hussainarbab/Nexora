@@ -146,22 +146,28 @@ export default function ScholarshipsPage() {
   ];
 
   const filteredScholarships = useMemo(() => {
-    let result = scholarships.filter((item) => {
-      const searchText = search.toLowerCase();
+    const searchText = search.trim().toLowerCase();
 
+    let result = scholarships.filter((scholarship) => {
       const matchesSearch =
-        item.title.toLowerCase().includes(searchText) ||
-        item.university.toLowerCase().includes(searchText) ||
-        item.country.toLowerCase().includes(searchText);
+        scholarship.title.toLowerCase().includes(searchText) ||
+        scholarship.university.toLowerCase().includes(searchText) ||
+        scholarship.country.toLowerCase().includes(searchText) ||
+        scholarship.location.toLowerCase().includes(searchText) ||
+        scholarship.level.toLowerCase().includes(searchText) ||
+        scholarship.funding.toLowerCase().includes(searchText);
 
       const matchesCountry =
-        country === "All Countries" || item.country === country;
+        country === "All Countries" ||
+        scholarship.country === country;
 
       const matchesLevel =
-        level === "All Levels" || item.level === level;
+        level === "All Levels" ||
+        scholarship.level === level;
 
       const matchesFunding =
-        funding === "All Funding" || item.funding === funding;
+        funding === "All Funding" ||
+        scholarship.funding === funding;
 
       return (
         matchesSearch &&
@@ -197,7 +203,7 @@ export default function ScholarshipsPage() {
   return (
     <main className="min-h-screen bg-slate-50">
 
-      {/* Header */}
+      {/* Hero */}
       <section className="bg-linear-to-br from-blue-700 via-blue-600 to-indigo-700 px-4 py-16 text-white sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
 
@@ -209,7 +215,8 @@ export default function ScholarshipsPage() {
           </Link>
 
           <div className="mt-12 max-w-3xl">
-            <span className="rounded-full bg-white/15 px-4 py-2 text-sm backdrop-blur">
+
+            <span className="inline-block rounded-full bg-white/15 px-4 py-2 text-sm backdrop-blur">
               🎓 Global Scholarship Opportunities
             </span>
 
@@ -221,6 +228,7 @@ export default function ScholarshipsPage() {
               Discover fully funded and partial scholarships from
               universities and governments around the world.
             </p>
+
           </div>
 
           {/* Search */}
@@ -228,7 +236,10 @@ export default function ScholarshipsPage() {
             <div className="flex flex-col gap-3 rounded-2xl bg-white p-3 shadow-2xl sm:flex-row">
 
               <div className="flex flex-1 items-center gap-3 rounded-xl border border-slate-200 px-4">
-                <span className="text-xl">🔎</span>
+
+                <span className="text-xl">
+                  🔎
+                </span>
 
                 <input
                   type="text"
@@ -237,9 +248,11 @@ export default function ScholarshipsPage() {
                   placeholder="Search scholarship, university or country..."
                   className="w-full py-3 text-sm text-slate-900 outline-none"
                 />
+
               </div>
 
               <button
+                type="button"
                 onClick={() => setSearch(search.trim())}
                 className="rounded-xl bg-blue-600 px-7 py-3 font-semibold text-white transition hover:bg-blue-700"
               >
@@ -258,71 +271,35 @@ export default function ScholarshipsPage() {
         {/* Filters */}
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
 
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-            <div className="flex-1">
-              <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Country
-              </label>
+            <Filter
+              label="Country"
+              value={country}
+              onChange={setCountry}
+              options={countries}
+            />
 
-              <select
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-600"
-              >
-                {countries.map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </div>
+            <Filter
+              label="Study Level"
+              value={level}
+              onChange={setLevel}
+              options={levels}
+            />
 
-            <div className="flex-1">
-              <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Study Level
-              </label>
+            <Filter
+              label="Funding"
+              value={funding}
+              onChange={setFunding}
+              options={fundingTypes}
+            />
 
-              <select
-                value={level}
-                onChange={(e) => setLevel(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-600"
-              >
-                {levels.map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex-1">
-              <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Funding
-              </label>
-
-              <select
-                value={funding}
-                onChange={(e) => setFunding(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-600"
-              >
-                {fundingTypes.map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex-1">
-              <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Sort By
-              </label>
-
-              <select
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-600"
-              >
-                <option>Latest</option>
-                <option>Deadline</option>
-                <option>A-Z</option>
-              </select>
-            </div>
+            <Filter
+              label="Sort By"
+              value={sort}
+              onChange={setSort}
+              options={["Latest", "Deadline", "A-Z"]}
+            />
 
           </div>
 
@@ -337,6 +314,7 @@ export default function ScholarshipsPage() {
             </p>
 
             <button
+              type="button"
               onClick={clearFilters}
               className="text-sm font-semibold text-blue-600 hover:text-blue-700"
             >
@@ -347,7 +325,7 @@ export default function ScholarshipsPage() {
 
         </div>
 
-        {/* Scholarship Cards */}
+        {/* Cards */}
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
 
           {filteredScholarships.map((scholarship) => (
@@ -359,11 +337,13 @@ export default function ScholarshipsPage() {
 
         </div>
 
-        {/* No Results */}
+        {/* Empty State */}
         {filteredScholarships.length === 0 && (
           <div className="mt-8 rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
 
-            <div className="text-5xl">🔍</div>
+            <div className="text-5xl">
+              🔍
+            </div>
 
             <h2 className="mt-5 text-2xl font-bold text-slate-900">
               No scholarships found
@@ -371,12 +351,13 @@ export default function ScholarshipsPage() {
 
             <p className="mx-auto mt-2 max-w-md text-slate-500">
               Try changing your search or filters to find more
-              opportunities.
+              scholarship opportunities.
             </p>
 
             <button
+              type="button"
               onClick={clearFilters}
-              className="mt-6 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+              className="mt-6 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
             >
               Reset Filters
             </button>
@@ -390,6 +371,42 @@ export default function ScholarshipsPage() {
   );
 }
 
+/* Filter Component */
+function Filter({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: string[];
+}) {
+  return (
+    <div>
+
+      <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+        {label}
+      </label>
+
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+
+    </div>
+  );
+}
+
+/* Scholarship Card */
 function ScholarshipCard({
   scholarship,
 }: {
@@ -398,6 +415,7 @@ function ScholarshipCard({
   return (
     <article className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
 
+      {/* Top */}
       <div className="flex items-start justify-between gap-4">
 
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-2xl">
@@ -416,7 +434,8 @@ function ScholarshipCard({
 
       </div>
 
-      <h2 className="mt-5 text-xl font-bold text-slate-900 group-hover:text-blue-600">
+      {/* Title */}
+      <h2 className="mt-5 text-xl font-bold text-slate-900 transition group-hover:text-blue-600">
         {scholarship.title}
       </h2>
 
@@ -428,6 +447,7 @@ function ScholarshipCard({
         {scholarship.description}
       </p>
 
+      {/* Information */}
       <div className="mt-5 grid grid-cols-2 gap-3">
 
         <div className="rounded-xl bg-slate-50 p-3">
@@ -442,6 +462,16 @@ function ScholarshipCard({
 
         <div className="rounded-xl bg-slate-50 p-3">
           <p className="text-xs text-slate-400">
+            Location
+          </p>
+
+          <p className="mt-1 text-sm font-semibold text-slate-800">
+            📍 {scholarship.location}
+          </p>
+        </div>
+
+        <div className="rounded-xl bg-slate-50 p-3">
+          <p className="text-xs text-slate-400">
             Study Level
           </p>
 
@@ -450,13 +480,24 @@ function ScholarshipCard({
           </p>
         </div>
 
+        <div className="rounded-xl bg-slate-50 p-3">
+          <p className="text-xs text-slate-400">
+            Funding
+          </p>
+
+          <p className="mt-1 text-sm font-semibold text-slate-800">
+            💰 {scholarship.funding}
+          </p>
+        </div>
+
       </div>
 
-      <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-5">
+      {/* Bottom */}
+      <div className="mt-5 flex items-center justify-between gap-4 border-t border-slate-100 pt-5">
 
         <div>
           <p className="text-xs text-slate-400">
-            Deadline
+            Application Deadline
           </p>
 
           <p className="mt-1 text-sm font-bold text-red-600">
@@ -464,12 +505,12 @@ function ScholarshipCard({
           </p>
         </div>
 
-       <Link
-  href={`/scholarships/${scholarship.id}`}
-  className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
->
-  View Details →
-</Link>
+        <Link
+          href={`/scholarships/${scholarship.id}`}
+          className="shrink-0 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+        >
+          View Details →
+        </Link>
 
       </div>
 

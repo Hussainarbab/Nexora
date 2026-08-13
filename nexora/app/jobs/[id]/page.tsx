@@ -2,17 +2,28 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
-const jobs = [
+type Job = {
+  id: number;
+  title: string;
+  company: string;
+  country: string;
+  location: string;
+  type: string;
+  workplace: string;
+  experience: string;
+  salary: string;
+  posted: string;
+  description: string;
+};
+
+const jobs: Job[] = [
   {
     id: 1,
     title: "Frontend Developer",
     company: "TechNova",
     country: "Pakistan",
     location: "Islamabad",
-    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "Remote",
     experience: "Entry Level",
@@ -20,29 +31,13 @@ const jobs = [
     posted: "2 days ago",
     description:
       "Build modern and responsive web applications using React, JavaScript and modern frontend technologies.",
-    responsibilities: [
-      "Build responsive web applications",
-      "Work with React and JavaScript",
-      "Collaborate with designers and backend developers",
-      "Write clean and maintainable code",
-      "Improve website performance",
-    ],
-    requirements: [
-      "Basic knowledge of HTML, CSS and JavaScript",
-      "Experience with React",
-      "Understanding of responsive design",
-      "Good problem-solving skills",
-      "Ability to work in a team",
-    ],
   },
-
   {
     id: 2,
     title: "React Developer",
     company: "GlobalSoft",
     country: "United Kingdom",
     location: "London",
-    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "Remote",
     experience: "Mid Level",
@@ -50,29 +45,13 @@ const jobs = [
     posted: "3 days ago",
     description:
       "Join a global engineering team building scalable React applications for international customers.",
-    responsibilities: [
-      "Develop React applications",
-      "Build reusable components",
-      "Work with APIs",
-      "Review and improve existing code",
-      "Collaborate with international teams",
-    ],
-    requirements: [
-      "Strong React knowledge",
-      "JavaScript experience",
-      "REST API knowledge",
-      "Git and GitHub experience",
-      "Good communication skills",
-    ],
   },
-
   {
     id: 3,
     title: "Software Engineer",
     company: "Microsoft",
     country: "United States",
     location: "Seattle",
-    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "On-site",
     experience: "Mid Level",
@@ -80,29 +59,13 @@ const jobs = [
     posted: "5 days ago",
     description:
       "Work with experienced engineers to design, develop and maintain large-scale software systems.",
-    responsibilities: [
-      "Develop scalable software systems",
-      "Design technical solutions",
-      "Write high-quality code",
-      "Debug software issues",
-      "Work with engineering teams",
-    ],
-    requirements: [
-      "Strong programming skills",
-      "Software engineering experience",
-      "Problem-solving skills",
-      "Knowledge of software development practices",
-      "Team collaboration",
-    ],
   },
-
   {
     id: 4,
     title: "UI/UX Designer",
     company: "Creative Labs",
     country: "Canada",
     location: "Toronto",
-    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "Hybrid",
     experience: "Entry Level",
@@ -110,29 +73,13 @@ const jobs = [
     posted: "1 week ago",
     description:
       "Design beautiful and intuitive digital experiences for web and mobile products.",
-    responsibilities: [
-      "Create user interfaces",
-      "Build wireframes and prototypes",
-      "Work with developers",
-      "Conduct design research",
-      "Improve user experiences",
-    ],
-    requirements: [
-      "Knowledge of UI/UX principles",
-      "Figma experience",
-      "Creative thinking",
-      "Understanding of responsive design",
-      "Strong portfolio",
-    ],
   },
-
   {
     id: 5,
     title: "Next.js Developer",
     company: "DigitalWave",
     country: "Germany",
     location: "Berlin",
-    applyUrl: "https://example.com/apply",
     type: "Contract",
     workplace: "Remote",
     experience: "Mid Level",
@@ -140,29 +87,13 @@ const jobs = [
     posted: "1 week ago",
     description:
       "Develop high-performance applications using Next.js, React and modern web technologies.",
-    responsibilities: [
-      "Develop Next.js applications",
-      "Create reusable React components",
-      "Optimize application performance",
-      "Integrate APIs",
-      "Maintain production applications",
-    ],
-    requirements: [
-      "Strong Next.js knowledge",
-      "React experience",
-      "JavaScript or TypeScript",
-      "Git knowledge",
-      "Understanding of web performance",
-    ],
   },
-
   {
     id: 6,
     title: "Junior Web Developer",
     company: "CodeWorks",
     country: "Pakistan",
     location: "Lahore",
-    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "Hybrid",
     experience: "Entry Level",
@@ -170,29 +101,13 @@ const jobs = [
     posted: "2 weeks ago",
     description:
       "An excellent opportunity for junior developers to grow their frontend and web development skills.",
-    responsibilities: [
-      "Develop web pages",
-      "Fix frontend bugs",
-      "Work with senior developers",
-      "Create responsive layouts",
-      "Learn modern development practices",
-    ],
-    requirements: [
-      "HTML and CSS knowledge",
-      "JavaScript basics",
-      "Basic React knowledge is a plus",
-      "Willingness to learn",
-      "Good communication",
-    ],
   },
-
   {
     id: 7,
     title: "Backend Developer",
     company: "Cloud Systems",
     country: "Australia",
     location: "Sydney",
-    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "Remote",
     experience: "Senior Level",
@@ -200,29 +115,13 @@ const jobs = [
     posted: "2 weeks ago",
     description:
       "Design APIs and backend services while working with a distributed engineering team.",
-    responsibilities: [
-      "Build backend services",
-      "Design APIs",
-      "Work with databases",
-      "Improve application security",
-      "Monitor application performance",
-    ],
-    requirements: [
-      "Strong backend development experience",
-      "API development knowledge",
-      "Database experience",
-      "Cloud experience",
-      "Strong problem-solving skills",
-    ],
   },
-
   {
     id: 8,
     title: "Product Designer",
     company: "FutureTech",
     country: "United Arab Emirates",
     location: "Dubai",
-    applyUrl: "https://example.com/apply",
     type: "Full-time",
     workplace: "On-site",
     experience: "Mid Level",
@@ -230,20 +129,6 @@ const jobs = [
     posted: "3 weeks ago",
     description:
       "Create user-centered product experiences and collaborate closely with product and engineering teams.",
-    responsibilities: [
-      "Design product experiences",
-      "Create prototypes",
-      "Work with product managers",
-      "Collaborate with developers",
-      "Improve product usability",
-    ],
-    requirements: [
-      "Product design experience",
-      "Figma knowledge",
-      "Strong visual design skills",
-      "UX research knowledge",
-      "Strong portfolio",
-    ],
   },
 ];
 
@@ -252,154 +137,16 @@ export default function JobDetailsPage() {
 
   const id = Number(params.id);
 
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [savedId, setSavedId] = useState<string | null>(null);
-  const [checkingSaved, setCheckingSaved] = useState(true);
-
   const job = jobs.find((item) => item.id === id);
 
-  // Check if job is already saved
-  useEffect(() => {
-    const checkSaved = async () => {
-      if (!job) {
-        setCheckingSaved(false);
-        return;
-      }
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        setCheckingSaved(false);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("saved_opportunities")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("opportunity_id", String(job.id))
-        .eq("opportunity_type", "job")
-        .maybeSingle();
-
-      if (!error && data) {
-        setSaved(true);
-        setSavedId(data.id);
-      }
-
-      setCheckingSaved(false);
-    };
-
-    checkSaved();
-  }, [job]);
-
-  // Save job
-  const saveJob = async () => {
-    if (!job) return;
-
-    setSaving(true);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      alert("Please login first to save this job.");
-      setSaving(false);
-      return;
-    }
-
-    // Check again before inserting
-    const { data: existing, error: checkError } = await supabase
-      .from("saved_opportunities")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("opportunity_id", String(job.id))
-      .eq("opportunity_type", "job")
-      .maybeSingle();
-
-    if (checkError) {
-      alert(`Failed to check saved job: ${checkError.message}`);
-      setSaving(false);
-      return;
-    }
-
-    if (existing) {
-      setSaved(true);
-      setSavedId(existing.id);
-      setSaving(false);
-
-      alert("This job is already saved.");
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from("saved_opportunities")
-      .insert({
-        user_id: user.id,
-        opportunity_id: String(job.id),
-        opportunity_type: "job",
-        title: job.title,
-        company: job.company,
-      })
-      .select("id")
-      .single();
-
-    if (error) {
-      console.error("Save job error:", error);
-
-      if (error.code === "23505") {
-        setSaved(true);
-        setSaving(false);
-
-        alert("This job is already saved.");
-        return;
-      }
-
-      alert(`Failed to save job: ${error.message}`);
-      setSaving(false);
-      return;
-    }
-
-    setSaved(true);
-    setSavedId(data?.id ?? null);
-    setSaving(false);
-
-    alert("Job saved successfully! ❤️");
-  };
-
-  // Remove saved job
-  const removeJob = async () => {
-    if (!savedId) return;
-
-    setSaving(true);
-
-    const { error } = await supabase
-      .from("saved_opportunities")
-      .delete()
-      .eq("id", savedId);
-
-    if (error) {
-      alert(`Failed to remove job: ${error.message}`);
-      setSaving(false);
-      return;
-    }
-
-    setSaved(false);
-    setSavedId(null);
-    setSaving(false);
-
-    alert("Job removed from saved opportunities.");
-  };
-
-  // Job not found
   if (!job) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
         <div className="text-center">
-          <div className="text-6xl">🔍</div>
+
+          <div className="text-6xl">
+            🔍
+          </div>
 
           <h1 className="mt-5 text-3xl font-bold text-slate-900">
             Job Not Found
@@ -415,6 +162,7 @@ export default function JobDetailsPage() {
           >
             ← Back to Jobs
           </Link>
+
         </div>
       </main>
     );
@@ -422,243 +170,220 @@ export default function JobDetailsPage() {
 
   return (
     <main className="min-h-screen bg-slate-50">
-      {/* Navbar */}
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link
-            href="/"
-            className="text-2xl font-extrabold text-blue-600"
-          >
-            Nexora
-          </Link>
+
+      {/* Hero */}
+      <section className="bg-linear-to-br from-indigo-700 via-blue-600 to-cyan-600 px-4 py-10 text-white sm:px-6 lg:px-8">
+
+        <div className="mx-auto max-w-6xl">
 
           <Link
             href="/jobs"
-            className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            className="text-sm font-semibold text-blue-100 transition hover:text-white"
           >
-            ← All Jobs
+            ← Back to Jobs
           </Link>
-        </div>
-      </header>
 
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Hero */}
-        <section className="rounded-3xl bg-linear-to-br from-indigo-700 via-blue-600 to-cyan-600 p-6 text-white shadow-xl sm:p-10">
-          <div className="flex flex-col gap-6 sm:flex-row">
+          <div className="mt-10 flex flex-col gap-6 md:flex-row md:items-center">
+
             <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl bg-white/15 text-4xl backdrop-blur">
               💼
             </div>
 
-            <div className="flex-1">
-              <span className="inline-block rounded-full bg-white/15 px-4 py-2 text-sm font-semibold">
-                {job.workplace}
-              </span>
+            <div>
 
-              <h1 className="mt-4 text-3xl font-extrabold sm:text-4xl">
+              <h1 className="text-3xl font-extrabold sm:text-4xl">
                 {job.title}
               </h1>
 
-              <p className="mt-3 text-lg text-blue-100">
+              <p className="mt-2 text-lg text-blue-100">
                 {job.company}
               </p>
 
-              <div className="mt-5 flex flex-wrap gap-3">
-                <span className="rounded-xl bg-white/10 px-4 py-2 text-sm">
+              <div className="mt-4 flex flex-wrap gap-2">
+
+                <span className="rounded-full bg-white/15 px-4 py-2 text-sm">
                   📍 {job.location}
                 </span>
 
-                <span className="rounded-xl bg-white/10 px-4 py-2 text-sm">
+                <span className="rounded-full bg-white/15 px-4 py-2 text-sm">
                   🌍 {job.country}
                 </span>
 
-                <span className="rounded-xl bg-white/10 px-4 py-2 text-sm">
-                  🕐 {job.type}
+                <span className="rounded-full bg-white/15 px-4 py-2 text-sm">
+                  🏠 {job.workplace}
                 </span>
 
-                <span className="rounded-xl bg-white/10 px-4 py-2 text-sm">
-                  📊 {job.experience}
-                </span>
               </div>
-            </div>
-          </div>
-        </section>
 
-        {/* Content */}
-        <div className="mt-8 grid gap-8 lg:grid-cols-3">
-          {/* Main Content */}
-          <div className="space-y-8 lg:col-span-2">
-            {/* About */}
-            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* Main */}
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+
+        <div className="grid gap-8 lg:grid-cols-3">
+
+          {/* Left */}
+          <div className="lg:col-span-2">
+
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+
               <h2 className="text-2xl font-bold text-slate-900">
-                About This Job
+                Job Description
               </h2>
 
-              <p className="mt-4 leading-7 text-slate-600">
+              <p className="mt-5 leading-8 text-slate-600">
                 {job.description}
               </p>
-            </section>
 
-            {/* Responsibilities */}
-            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-              <h2 className="text-2xl font-bold text-slate-900">
-                Responsibilities
+              <h2 className="mt-10 text-2xl font-bold text-slate-900">
+                About This Position
               </h2>
 
-              <div className="mt-5 space-y-3">
-                {job.responsibilities.map((item, index) => (
-                  <div key={index} className="flex gap-3">
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600">
-                      ✓
-                    </span>
+              <p className="mt-4 leading-8 text-slate-600">
+                We are looking for a motivated professional who can
+                contribute to real-world projects and work with an
+                experienced team. This position provides an opportunity
+                to grow your technical skills and gain valuable
+                professional experience.
+              </p>
 
-                    <p className="text-slate-600">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Requirements */}
-            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-              <h2 className="text-2xl font-bold text-slate-900">
+              <h2 className="mt-10 text-2xl font-bold text-slate-900">
                 Requirements
               </h2>
 
-              <div className="mt-5 space-y-3">
-                {job.requirements.map((item, index) => (
-                  <div key={index} className="flex gap-3">
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-600">
-                      ✓
-                    </span>
+              <ul className="mt-5 space-y-3 text-slate-600">
+                <li>✓ Strong knowledge of modern web development</li>
+                <li>✓ Good understanding of JavaScript and React</li>
+                <li>✓ Ability to work independently and in a team</li>
+                <li>✓ Good communication skills</li>
+                <li>✓ Problem-solving and analytical skills</li>
+              </ul>
 
-                    <p className="text-slate-600">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
+              <h2 className="mt-10 text-2xl font-bold text-slate-900">
+                Responsibilities
+              </h2>
+
+              <ul className="mt-5 space-y-3 text-slate-600">
+                <li>✓ Develop and maintain web applications</li>
+                <li>✓ Collaborate with other developers</li>
+                <li>✓ Write clean and maintainable code</li>
+                <li>✓ Fix bugs and improve application performance</li>
+                <li>✓ Participate in team discussions and reviews</li>
+              </ul>
+
+            </div>
+
           </div>
 
-          {/* Sidebar */}
+          {/* Right */}
           <aside>
-            <div className="sticky top-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
+
+            <div className="sticky top-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+
               <h2 className="text-xl font-bold text-slate-900">
-                Job Information
+                Job Overview
               </h2>
 
               <div className="mt-6 space-y-5">
-                <Info
-                  label="Company"
-                  value={job.company}
-                  icon="🏢"
-                />
 
                 <Info
-                  label="Location"
-                  value={job.location}
-                  icon="📍"
-                />
-
-                <Info
-                  label="Workplace"
-                  value={job.workplace}
-                  icon="🏠"
-                />
-
-                <Info
-                  label="Job Type"
-                  value={job.type}
-                  icon="🕐"
-                />
-
-                <Info
-                  label="Experience"
-                  value={job.experience}
-                  icon="📊"
-                />
-
-                <Info
+                  icon="💰"
                   label="Salary"
                   value={job.salary}
-                  icon="💰"
                 />
 
                 <Info
+                  icon="🕐"
+                  label="Job Type"
+                  value={job.type}
+                />
+
+                <Info
+                  icon="📊"
+                  label="Experience"
+                  value={job.experience}
+                />
+
+                <Info
+                  icon="🏠"
+                  label="Workplace"
+                  value={job.workplace}
+                />
+
+                <Info
+                  icon="📍"
+                  label="Location"
+                  value={job.location}
+                />
+
+                <Info
+                  icon="📅"
                   label="Posted"
                   value={job.posted}
-                  icon="📅"
                 />
+
               </div>
 
-              {/* Buttons */}
-              <div className="mt-7 border-t border-slate-100 pt-6">
-                <a
-  href={job.applyUrl}
-  target="_blank"
-  rel="noopener noreferrer"
-  className="block w-full rounded-xl bg-blue-600 py-3.5 text-center font-bold text-white transition hover:bg-blue-700"
->
-  Apply Now →
-</a>
+              <button
+                type="button"
+                className="mt-8 w-full rounded-xl bg-blue-600 px-6 py-4 font-bold text-white transition hover:bg-blue-700"
+              >
+                Apply Now →
+              </button>
 
-                {checkingSaved ? (
-                  <button
-                    disabled
-                    className="mt-3 w-full cursor-not-allowed rounded-xl border border-slate-300 bg-slate-100 py-3.5 font-bold text-slate-400"
-                  >
-                    Checking...
-                  </button>
-                ) : saved ? (
-                  <button
-                    onClick={removeJob}
-                    disabled={saving}
-                    className="mt-3 w-full rounded-xl border border-red-200 py-3.5 font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {saving ? "Removing..." : "❤️ Saved — Remove"}
-                  </button>
-                ) : (
-                  <button
-                    onClick={saveJob}
-                    disabled={saving}
-                    className="mt-3 w-full rounded-xl border border-slate-300 py-3.5 font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {saving ? "Saving..." : "♡ Save Job"}
-                  </button>
-                )}
-              </div>
+              <button
+                type="button"
+                className="mt-3 w-full rounded-xl border border-slate-300 px-6 py-4 font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                ♡ Save Job
+              </button>
 
-              <p className="mt-5 text-center text-xs leading-5 text-slate-400">
-                Always verify the job and company details before
-                submitting your application.
-              </p>
             </div>
+
           </aside>
+
         </div>
-      </div>
+
+      </section>
+
     </main>
   );
 }
 
 function Info({
+  icon,
   label,
   value,
-  icon,
 }: {
+  icon: string;
   label: string;
   value: string;
-  icon: string;
 }) {
   return (
-    <div className="flex items-center gap-4">
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-lg">
+    <div className="flex gap-4">
+
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50">
         {icon}
       </div>
 
       <div>
-        <p className="text-xs text-slate-400">{label}</p>
 
-        <p className="mt-1 font-semibold text-slate-800">
+        <p className="text-xs font-medium text-slate-400">
+          {label}
+        </p>
+
+        <p className="mt-1 text-sm font-semibold text-slate-800">
           {value}
         </p>
+
       </div>
+
     </div>
   );
 }

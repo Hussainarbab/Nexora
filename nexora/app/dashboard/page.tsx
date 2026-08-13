@@ -14,29 +14,62 @@ export default function DashboardPage() {
   const [userName, setUserName] = useState("User");
   const [loading, setLoading] = useState(true);
 
+  const [totalSaved, setTotalSaved] = useState(0);
+  const [savedJobs, setSavedJobs] = useState(0);
+  const [savedInternships, setSavedInternships] = useState(0);
+  const [savedScholarships, setSavedScholarships] = useState(0);
+
   useEffect(() => {
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
-
-      if (!data.user) {
-        window.location.href = "/login";
-        return;
-      }
-
-      const profile = data.user.user_metadata as UserProfile;
-
-      setUserName(
-        profile?.first_name ||
-          profile?.full_name ||
-          data.user.email?.split("@")[0] ||
-          "User"
-      );
-
-      setLoading(false);
-    };
-
-    getUser();
+    loadDashboard();
   }, []);
+
+  const loadDashboard = async () => {
+    setLoading(true);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
+
+    const profile = user.user_metadata as UserProfile;
+
+    setUserName(
+      profile?.first_name ||
+        profile?.full_name ||
+        user.email?.split("@")[0] ||
+        "User"
+    );
+
+    const { data: savedData, error } = await supabase
+      .from("saved_opportunities")
+      .select("opportunity_type")
+      .eq("user_id", user.id);
+
+    if (!error && savedData) {
+      const jobs = savedData.filter(
+        (item) => item.opportunity_type === "job"
+      ).length;
+
+      const internships = savedData.filter(
+        (item) => item.opportunity_type === "internship"
+      ).length;
+
+      const scholarships = savedData.filter(
+        (item) => item.opportunity_type === "scholarship"
+      ).length;
+
+      setSavedJobs(jobs);
+      setSavedInternships(internships);
+      setSavedScholarships(scholarships);
+      setTotalSaved(savedData.length);
+    }
+
+    setLoading(false);
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -48,7 +81,10 @@ export default function DashboardPage() {
       <main className="flex min-h-screen items-center justify-center bg-slate-50">
         <div className="text-center">
           <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
-          <p className="mt-4 text-slate-500">Loading dashboard...</p>
+
+          <p className="mt-4 text-slate-500">
+            Loading dashboard...
+          </p>
         </div>
       </main>
     );
@@ -68,12 +104,23 @@ export default function DashboardPage() {
             Nexora
           </Link>
 
-          <button
-            onClick={handleLogout}
-            className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-          >
-            Logout
-          </button>
+          <div className="flex items-center gap-3">
+
+            <Link
+              href="/"
+              className="hidden rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 sm:block"
+            >
+              Explore
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+            >
+              Logout
+            </button>
+
+          </div>
 
         </div>
       </header>
@@ -109,33 +156,41 @@ export default function DashboardPage() {
         {/* Stats */}
         <section className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
 
-          <DashboardCard
-            icon="❤️"
-            title="Saved"
-            value="0"
-            description="Saved opportunities"
-          />
+          <Link href="/dashboard">
+            <DashboardCard
+              icon="❤️"
+              title="Saved"
+              value={String(totalSaved)}
+              description="Saved opportunities"
+            />
+          </Link>
 
-          <DashboardCard
-            icon="🎓"
-            title="Scholarships"
-            value="0"
-            description="Saved scholarships"
-          />
+          <Link href="/dashboard/scholarships">
+            <DashboardCard
+              icon="🎓"
+              title="Scholarships"
+              value={String(savedScholarships)}
+              description="Saved scholarships"
+            />
+          </Link>
 
-          <DashboardCard
-            icon="💼"
-            title="Jobs"
-            value="0"
-            description="Saved jobs"
-          />
+          <Link href="/dashboard/jobs">
+            <DashboardCard
+              icon="💼"
+              title="Jobs"
+              value={String(savedJobs)}
+              description="Saved jobs"
+            />
+          </Link>
 
-          <DashboardCard
-            icon="🧑‍💻"
-            title="Internships"
-            value="0"
-            description="Saved internships"
-          />
+          <Link href="/dashboard/internships">
+            <DashboardCard
+              icon="🧑‍💻"
+              title="Internships"
+              value={String(savedInternships)}
+              description="Saved internships"
+            />
+          </Link>
 
         </section>
 
@@ -168,7 +223,9 @@ export default function DashboardPage() {
 
             <div className="mt-6 rounded-2xl border border-dashed border-slate-300 p-8 text-center">
 
-              <div className="text-4xl">🌍</div>
+              <div className="text-4xl">
+                🌍
+              </div>
 
               <h3 className="mt-4 font-bold text-slate-800">
                 No recommendations yet
@@ -199,7 +256,7 @@ export default function DashboardPage() {
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Complete your profile
+              Manage your profile
             </p>
 
             <div className="mt-6">
@@ -218,17 +275,12 @@ export default function DashboardPage() {
 
             </div>
 
-            <div className="mt-6 h-2 overflow-hidden rounded-full bg-slate-100">
-              <div className="h-full w-1/3 rounded-full bg-blue-600" />
-            </div>
-
-            <p className="mt-2 text-xs text-slate-500">
-              Profile completion: 33%
-            </p>
-
-            <button className="mt-5 w-full rounded-xl border border-slate-300 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-              Complete Profile
-            </button>
+            <Link
+              href="/dashboard/profile"
+              className="mt-6 block w-full rounded-xl border border-slate-300 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              View Profile
+            </Link>
 
           </div>
 
@@ -238,37 +290,37 @@ export default function DashboardPage() {
         <section className="mt-8">
 
           <h2 className="text-xl font-bold text-slate-900">
-            Explore Nexora
+            Your Saved Opportunities
           </h2>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
             <QuickLink
-              href="/scholarships"
+              href="/dashboard/scholarships"
               icon="🎓"
-              title="Scholarships"
-              text="Find scholarships worldwide"
+              title="Saved Scholarships"
+              text={`${savedScholarships} saved scholarships`}
             />
 
             <QuickLink
-              href="/jobs"
+              href="/dashboard/jobs"
               icon="💼"
-              title="Jobs"
-              text="Discover global jobs"
+              title="Saved Jobs"
+              text={`${savedJobs} saved jobs`}
             />
 
             <QuickLink
-              href="/internships"
+              href="/dashboard/internships"
               icon="🧑‍💻"
-              title="Internships"
-              text="Start your career"
+              title="Saved Internships"
+              text={`${savedInternships} saved internships`}
             />
 
             <QuickLink
-              href="/"
-              icon="🌍"
-              title="All Opportunities"
-              text="Explore everything"
+              href="/dashboard/settings"
+              icon="⚙️"
+              title="Settings"
+              text="Manage your account"
             />
 
           </div>
@@ -279,8 +331,6 @@ export default function DashboardPage() {
     </main>
   );
 }
-
-/* Dashboard Card */
 
 function DashboardCard({
   icon,
@@ -315,8 +365,6 @@ function DashboardCard({
     </div>
   );
 }
-
-/* Quick Link */
 
 function QuickLink({
   href,
